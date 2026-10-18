@@ -102,6 +102,13 @@ PRICE_PARSING_EXAMPLES_NEW = [
     Example(None, "3,500円", "円", "3,500", 3500),
     Example(None, "CHF 1'049,95", "CHF", "1049,95", 1049.95),
     Example(None, "€1'049,95", "€", "1049,95", 1049.95),
+    # Swiss-style ASCII apostrophe digit grouping with a "." decimal separator
+    Example(None, "CHF 1'234.50", "CHF", "1234.50", 1234.50),
+    Example(None, "1'299.95 CHF", "CHF", "1299.95", 1299.95),
+    Example(None, "CHF 1'234'567.50", "CHF", "1234567.50", 1234567.50),
+    Example(None, "CHF 12'500", "CHF", "12500", 12500),
+    # fr-CH groups digits with U+202F NARROW NO-BREAK SPACE
+    Example(None, "1\u202f234\u202f567,50 CHF", "CHF", "1 234 567,50", 1234567.50),
     Example(None, "644.00 جنيه", "جنيه", "644.00", 644.0),  # Egyptian pound (EGP)
     Example(None, "3,439.00 درهم", "درهم", "3,439.00", 3439.0),  # UAE dirham (AED)
     Example(None, "106.61 ريال", "ريال", "106.61", 106.61),  # Saudi riyal (SAR)
@@ -1420,6 +1427,20 @@ PRICE_PARSING_EXAMPLES_XFAIL_CURRENCIES_TO_BE_ADDED = [
 ]
 
 
+# Swiss (de-CH, it-CH) and Liechtenstein (de-LI) prices grouped with U+2019
+# RIGHT SINGLE QUOTATION MARK, the CLDR group symbol for these locales. Only the
+# ASCII apostrophe is recognized as a digit group separator, so these are
+# currently truncated at the first separator (e.g. "CHF 1\u2019234.50" -> 1).
+PRICE_PARSING_EXAMPLES_XFAIL_TYPOGRAPHIC_APOSTROPHE = [
+    Example(None, "CHF 1\u2019234.50", "CHF", "1234.50", 1234.50),
+    Example(None, "1\u2019299.95 CHF", "CHF", "1299.95", 1299.95),
+    Example(None, "CHF 1\u2019234\u2019567.50", "CHF", "1234567.50", 1234567.50),
+    Example(None, "CHF 12\u2019500", "CHF", "12500", 12500),
+    Example(None, "€1\u2019049,95", "€", "1049,95", 1049.95),
+    Example("CHF", "1\u2019234.50", "CHF", "1234.50", 1234.50),
+]
+
+
 PRICE_PARSING_DECIMAL_SEPARATOR_EXAMPLES = [
     Example(None, "1250€ 600", "€", "1250", 1250, "€"),
     Example(None, "1250€ 60", "€", "1250€60", 1250.60, "€"),
@@ -1447,6 +1468,7 @@ PRICE_PARSING_DECIMAL_SEPARATOR_EXAMPLES = [
         pytest.param(e, marks=pytest.mark.xfail(strict=True))
         for e in PRICE_PARSING_EXAMPLES_XFAIL
         + PRICE_PARSING_EXAMPLES_XFAIL_CURRENCIES_TO_BE_ADDED
+        + PRICE_PARSING_EXAMPLES_XFAIL_TYPOGRAPHIC_APOSTROPHE
     ],
     ids=idfn,
 )
