@@ -339,7 +339,7 @@ def extract_price_text(price: str) -> Optional[str]:
             re.VERBOSE,
         )
         if m:
-            return m.group(0).replace(" ", "")
+            return m.group(0).replace(" ", "").replace("'", "")
 
     m = re.search(
         r"""
