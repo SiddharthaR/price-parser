@@ -324,7 +324,7 @@ def extract_price_text(price: str) -> Optional[str]:
         r"\s+", " ", price
     )  # clean initial text from non-breaking and extra spaces
     # Swiss locales (CLDR de-CH) group thousands with a typographic apostrophe
-    price = re.sub(r"[\u2019\u02bc]", "'", price)
+    price = re.sub(r"[\u2018\u2019\u02bc]", "'", price)
 
     if price.count("€") == 1:
         m = re.search(
